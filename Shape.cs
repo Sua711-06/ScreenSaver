@@ -20,8 +20,6 @@ namespace ScreenSaver {
         public int Right { get; set; }
         public bool isGif = false;
         public List<int> CollidingWith = new List<int>();
-
-        // GIF-specific fields
         private Image gifImage;
         private FrameDimension gifFrameDimension;
         private int gifFrameCount;
@@ -32,18 +30,14 @@ namespace ScreenSaver {
             Random rnd = new Random();
             if(rnd.NextDouble() < 0.2) {
                 this.isGif = true;
-                // gif creation placeholder
                 try {
                     string gifFiles = "C:\\Users\\suatr\\School\\PROG2200\\A2\\ScreenSaver\\Assets\\";
                     string[] gifFileArray = Directory.GetFiles(gifFiles, "*.gif");
                     if(gifFileArray.Length == 0) {
-                        // Fallback to polygon if no GIFs found
                         this.isGif = false;
                     } else {
                         string selectedGif = gifFileArray[rnd.Next(gifFileArray.Length)];
                         this.gifImage = Image.FromFile(selectedGif);
-
-                        // Establish frame dimension and count
                         var dims = this.gifImage.FrameDimensionsList;
                         this.gifFrameDimension = dims != null && dims.Length > 0
                             ? new FrameDimension(dims[0])
@@ -51,18 +45,12 @@ namespace ScreenSaver {
                         this.gifFrameCount = this.gifImage.GetFrameCount(this.gifFrameDimension);
                         this.gifFrameIndex = 0;
                         this.gifImage.SelectActiveFrame(this.gifFrameDimension, this.gifFrameIndex);
-
-                        // Size of the GIF
                         int gifW = this.gifImage.Width;
                         int gifH = this.gifImage.Height;
-
-                        // Place centered on mouse, clamped to screen
                         int left = Math.Max(0, Math.Min(mousePos.X - (gifW / 2), Math.Max(0, maxWidth - gifW)));
                         int top = Math.Max(0, Math.Min(mousePos.Y - (gifH / 2), Math.Max(0, maxHeight - gifH)));
                         int right = left + gifW;
                         int bottom = top + gifH;
-
-                        // Points as rectangle around the GIF (for collisions/movement)
                         this.Points = new Point[] {
                             new Point(left, top),
                             new Point(right, top),
@@ -71,7 +59,6 @@ namespace ScreenSaver {
                         };
                     }
                 } catch {
-                    // Any issue loading/reading GIFs -> fallback to polygon
                     this.isGif = false;
                     Console.WriteLine("Error loading GIF. Falling back to polygon shape.");
                 }
@@ -90,7 +77,6 @@ namespace ScreenSaver {
                     if(this.Points[i].Y > maxHeight) this.Points[i].Y = maxHeight;
                 }
             }
-
             this.Color = Color.FromArgb(rnd.Next(0, 255), rnd.Next(0, 255), rnd.Next(0, 255));
             this.xVel = rnd.Next(-10, 10);
             this.yVel = rnd.Next(-10, 10);
@@ -149,7 +135,6 @@ namespace ScreenSaver {
         }
 
         public void Move(int xDir, int yDir, int screenWidth, int screenHeight) {
-            // gif animation placeholder
             if (this.isGif && this.gifImage != null && this.gifFrameCount > 1) {
                 this.gifFrameIndex = (this.gifFrameIndex + 1) % this.gifFrameCount;
                 this.gifImage.SelectActiveFrame(this.gifFrameDimension, this.gifFrameIndex);
@@ -193,7 +178,6 @@ namespace ScreenSaver {
 
         public void Draw(Graphics g) {
             if (this.isGif && this.gifImage != null) {
-                // Draw current GIF frame within its rectangle
                 int width = this.Right - this.Left;
                 int height = this.Bottom - this.Top;
                 g.DrawImage(this.gifImage, new Rectangle(this.Left, this.Top, width, height));
